@@ -1,0 +1,79 @@
+#! /home/artemis/ipwatch/venv/bin/python3.10
+
+from bs4 import BeautifulSoup
+from datetime import datetime
+import ipwConfig
+import os
+import requests
+import sys
+
+logfile = ipwConfig.logDir + ipwConfig.logFile
+errorfile = ipwConfig.logDir + ipwConfig.errorLogFile 
+pipfile = ipwConfig.previousIPDir + ipwConfig.previousIP
+now = datetime.today()
+cfurl = "https://api.cloudflare.com/client/v4/zones/{}/dns_records/{}"
+zone = os.getenv('CF_ZONE')
+dnsr = os.getenv('CF_RECORD')
+editt = os.getenv('CF_TOKEN')
+rname = os.getenv('REC_NAME')
+
+def log(message):
+  log = open(logfile, 'a')
+  line = ipwConfig.logLine
+  log.write(line.format(day=now.strftime('%j'),hr=now.hour,min=now.minute,sec=now.second,event=message))
+  log.close()
+
+def error(message):
+  error = open(errorfile, 'a')
+  line = ipwConfig.errorLine
+  error.write(line.format(day=now.strftime('%j'),hr=now.hour,min=now.minute,sec=now.second,event=message))
+  error.close()
+
+if __name__ == '__main__':
+
+  if zone is None or dnsr is None or editt is None or rname is None:
+    #log
+    error('Environment variables not set')
+    #print to stderr
+    print('Environment variables not set', file=sys.stderr)
+    exit()
+
+  prevIP = ''
+  with open(pipfile, 'r') as p_ip:
+    prevIP = p_ip.read().lstrip().rstrip()
+
+  (result, message) = ipwConfig.network.getIP()
+  if result == 'FAIL':
+    #log
+    error(message)
+    #print to stderr
+    print(message, file=sys.stderr) 
+    exit()
+  else:
+    currIP = message
+    if prevIP == currIP:
+      log('IP address has not changed')
+      print('IP address has not changed', file=sys.stderr)
+    else:
+      #log
+      log(f'Updating DNS records: {prevIP} -> {currIP}')
+      #update cloudflare dns
+      headers = {'content-type':'application/json','authorization':f'bearer {editt}'}
+      data = {'type':'A', 'name':rname, 'content':currIP, 'ttl':'1'}
+      try:
+        res = requests.put(cfurl.format(zone,dnsr), headers=headers, json=data) 
+        if res.status_code != 200:
+          log('DNS Record not updated')
+          error(f'Status Code {res.status_code}')
+          print(f'{res.text}', file=sys.stderr)
+          exit()
+        else:
+          log('DNS Record updated')
+          with open(pipfile, 'w') as p_ip:
+            p_ip.write(currIP)
+          exit()
+      except Exception as e:
+        log('DNS Record not updated')
+        error(f'{e}')
+        exit()
+

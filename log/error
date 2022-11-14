@@ -1,0 +1,8 @@
+[316:14:58:19] Status Code 400
+[316:15:0:49] Status Code 400
+[316:15:7:52] Invalid leading whitespace, reserved character(s), or returncharacter(s) in header value: ' application/json'
+[316:15:9:58] Invalid leading whitespace, reserved character(s), or returncharacter(s) in header value: ' application/json'
+[316:15:10:52] Status Code 400
+[316:15:10:52] name 'sys' is not defined
+[316:15:11:36] Status Code 400
+[316:15:24:29] open() missing required argument 'file' (pos 1)
