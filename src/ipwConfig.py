@@ -6,10 +6,10 @@
 #              - Determination methods directory location
 #
 
-previousIPDir = '/home/artemis/ipwatch/src/'
+previousIPDir = '/home/[USER]/ipwatch/src/'
 previousIP = 'previous_ip'
 
-logDir = '/home/artemis/ipwatch/log/'
+logDir = '/home/[USER]/ipwatch/log/'
 
 logFile = 'log'
 logLine = '[{day}:{hr}:{min}:{sec}] {event}\n'
@@ -17,7 +17,7 @@ logLine = '[{day}:{hr}:{min}:{sec}] {event}\n'
 errorLogFile = 'error'
 errorLine = '[{day}:{hr}:{min}:{sec}] {event}\n'
 
-methodsDir = '/home/artemis/ipwatch/method/'
+methodsDir = '/home/[USER]/ipwatch/method/'
 method = 'HUMAX_BGW320-500_3-19-7'
 
 import sys
